@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crazy Monster Spider</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(180deg, #0a001f, #1a0033);
+            height: 100vh;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            cursor: none;
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+        }
+
+        #spider {
+            position: absolute;
+            width: 140px;
+            height: 140px;
+            z-index: 1000;
+            filter: drop-shadow(0 0 20px #00ffcc);
+            user-select: none;
+            pointer-events: none;
+        }
+
+        .spider-svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        h1 {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #00ffcc;
+            text-shadow: 0 0 20px #00ffcc;
+            font-size: 2.8rem;
+            z-index: 10;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+
+        .web {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle, transparent 40%, rgba(0, 255, 200, 0.08) 41%, transparent 42%),
+                radial-gradient(circle, transparent 40%, rgba(0, 255, 200, 0.08) 41%, transparent 42%);
+            background-size: 90px 90px;
+            pointer-events: none;
+            opacity: 0.4;
+        }
+
+        .message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ff3366;
+            font-size: 3.5rem;
+            font-weight: bold;
+            text-shadow: 0 0 30px #ff3366, 0 0 60px #ff0000;
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.8s ease;
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        .message.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1.05);
+        }
+
+        .info {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #88ffdd;
+            font-size: 1.1rem;
+            text-shadow: 0 0 10px #00ffcc;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="web" id="backgroundWeb"></div>
+        <h1>🕸️ MONSTER SPIDER IS AFTER YOU 🕸️</h1>
+        
+        <div id="spider">
+            <svg class="spider-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <!-- Body -->
+                <ellipse cx="100" cy="100" rx="45" ry="38" fill="#1a1a2e" stroke="#00ffcc" stroke-width="12"/>
+                <!-- Abdomen -->
+                <ellipse cx="100" cy="125" rx="38" ry="32" fill="#0f0f1f" stroke="#00ffcc" stroke-width="10"/>
+                
+                <!-- Head details -->
+                <circle cx="78" cy="78" r="12" fill="#ff3366"/>
+                <circle cx="122" cy="78" r="12" fill="#ff3366"/>
+                
+                <!-- Eyes -->
+                <circle cx="72" cy="72" r="8" fill="#ffffff"/>
+                <circle cx="128" cy="72" r="8" fill="#ffffff"/>
+                <circle cx="74" cy="72" r="4" fill="#000000" class="pupil"/>
+                <circle cx="130" cy="72" r="4" fill="#000000" class="pupil"/>
+                
+                <!-- Fangs -->
+                <polygon points="88,95 85,115 92,105" fill="#ff3366"/>
+                <polygon points="112,95 115,115 108,105" fill="#ff3366"/>
+                
+                <!-- Legs -->
+                <line x1="65" y1="95" x2="30" y2="55" stroke="#00ffcc" stroke-width="14" stroke-linecap="round" class="leg"/>
+                <line x1="65" y1="115" x2="25" y2="130" stroke="#00ffcc" stroke-width="14" stroke-linecap="round" class="leg"/>
+                <line x1="65" y1="130" x2="35" y2="170" stroke="#00ffcc" stroke-width="14" stroke-linecap="round" class="leg"/>
+                
+                <line x1="135" y1="95" x2="170" y2="55" stroke="#00ffcc" stroke-width="14" stroke-linecap="round" class="leg"/>
+                <line x1="135" y1="115" x2="175" y2="130" stroke="#00ffcc" stroke-width="14" stroke-linecap="round" class="leg"/>
+                <line x1="135" y1="130" x2="165" y2="170" stroke="#00ffcc" stroke-width="14" stroke-linecap="round" class="leg"/>
+            </svg>
+        </div>
+
+        <div class="message" id="specialMessage">
+            DEV<br>I AM WATCHING YOU
+        </div>
+    </div>
+
+    <div class="info">Move mouse • Right-click 3 times quickly to summon the message</div>
+
+    <script>
+        const spider = document.getElementById('spider');
+        const message = document.getElementById('specialMessage');
+        const backgroundWeb = document.getElementById('backgroundWeb');
+        
+        let mouseX = window.innerWidth / 2;
+        let mouseY = window.innerHeight / 2;
+        let spiderX = mouseX;
+        let spiderY = mouseY;
+        let velocityX = 0;
+        let velocityY = 0;
+        let isCrazy = false;
+        let rightClickCount = 0;
+        let lastRightClickTime = 0;
+
+        // Mouse movement
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            if (e.touches.length > 0) {
+                mouseX = e.touches[0].clientX;
+                mouseY = e.touches[0].clientY;
+            }
+        });
+
+        // Right-click 3 times detection
+        document.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            
+            const now = Date.now();
+            if (now - lastRightClickTime > 1500) rightClickCount = 1;
+            else rightClickCount++;
+            
+            lastRightClickTime = now;
+
+            if (rightClickCount >= 3) {
+                triggerSpecialMessage();
+                rightClickCount = 0;
+            }
+        });
+
+        function triggerSpecialMessage() {
+            isCrazy = true;
+            setTimeout(() => { isCrazy = false; }, 1500);
+
+            message.classList.add('show');
+            backgroundWeb.style.opacity = '0.85';
+            backgroundWeb.style.backgroundSize = '55px 55px';
+
+            setTimeout(() => {
+                message.classList.remove('show');
+                backgroundWeb.style.opacity = '0.4';
+                backgroundWeb.style.backgroundSize = '90px 90px';
+            }, 4500);
+        }
+
+        // Random crazy mode
+        setInterval(() => {
+            if (Math.random() < 0.25) {
+                isCrazy = true;
+                setTimeout(() => { isCrazy = false; }, 700);
+            }
+        }, 2300);
+
+        // Main animation
+        function animate() {
+            const dx = mouseX - spiderX;
+            const dy = mouseY - spiderY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            let speed = 0.22;
+            let jitter = 0;
+
+            if (isCrazy) {
+                speed = 0.58;
+                jitter = (Math.random() - 0.5) * 32;
+            } else if (distance > 350) {
+                speed = 0.32;
+            }
+
+            velocityX = velocityX * 0.82 + (dx * speed);
+            velocityY = velocityY * 0.82 + (dy * speed);
+
+            spiderX += velocityX + jitter;
+            spiderY += velocityY + jitter;
+
+            spiderX = Math.max(80, Math.min(window.innerWidth - 80, spiderX));
+            spiderY = Math.max(80, Math.min(window.innerHeight - 80, spiderY));
+
+            spider.style.left = `${spiderX - 70}px`;
+            spider.style.top = `${spiderY - 70}px`;
+
+            // Eye tracking
+            const pupils = document.querySelectorAll('.pupil');
+            const eyeOffsetX = Math.max(-5, Math.min(5, dx * 0.018));
+            const eyeOffsetY = Math.max(-5, Math.min(5, dy * 0.018));
+            
+            pupils.forEach(pupil => {
+                pupil.setAttribute('cx', 74 + eyeOffsetX);
+                pupil.setAttribute('cy', 72 + eyeOffsetY);
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        // Left click jump
+        document.addEventListener('click', () => {
+            spider.style.transition = 'transform 0.25s';
+            spider.style.transform = 'scale(1.6)';
+            setTimeout(() => {
+                spider.style.transition = 'transform 0.4s';
+                spider.style.transform = 'scale(1)';
+            }, 180);
+        });
+
+        window.addEventListener('resize', () => {
+            mouseX = window.innerWidth / 2;
+            mouseY = window.innerHeight / 2;
+        });
+    </script>
+</body>
+</html>
